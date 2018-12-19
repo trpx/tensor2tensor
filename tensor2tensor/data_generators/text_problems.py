@@ -222,13 +222,19 @@ class Text2TextProblem(problem.Problem):
   def get_or_create_vocab(self, data_dir, tmp_dir, force_get=False):
     if self.vocab_type == VocabType.CHARACTER:
       encoder = text_encoder.ByteTextEncoder()
-    elif self.vocab_type == VocabType.SUBWORD:
+    elif self.vocab_type == VocabType.SUBWORD:  # x #
       if force_get:
         vocab_filepath = os.path.join(data_dir, self.vocab_filename)
-        encoder = text_encoder.SubwordTextEncoder(vocab_filepath)
+        encoder = text_encoder.SubwordTextEncoder(vocab_filepath)  # x #
       else:
+        # ================================================================================
+        # executes vocab = SubwordTextEncoder.build_from-generator(...)
+        # vocab.store_to_file(file_path)
+        # NOTE: vocab == encoder here
+        # ================================================================================
         encoder = generator_utils.get_or_generate_vocab_inner(
             data_dir, self.vocab_filename, self.approx_vocab_size,
+            # yields inputs then yields targets etc
             self.generate_text_for_vocab(data_dir, tmp_dir),
             max_subtoken_length=self.max_subtoken_length,
             reserved_tokens=(
@@ -259,6 +265,9 @@ class Text2TextProblem(problem.Problem):
     elif dataset_split == problem.DatasetSplit.EVAL:
       mlperf_log.transformer_print(key=mlperf_log.PREPROC_TOKENIZE_EVAL)
 
+    # ======================================================================= #
+    # generator which yields dicts of form {'inputs': x_str, 'targets': y_str}
+    # ======================================================================= #
     generator = self.generate_samples(data_dir, tmp_dir, dataset_split)
     encoder = self.get_or_create_vocab(data_dir, tmp_dir)
     return text2text_generate_encoded(generator, encoder,

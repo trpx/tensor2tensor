@@ -346,7 +346,7 @@ def get_or_generate_vocab_inner(data_dir, vocab_filename, vocab_size,
     vocab_filepath = None
 
   tf.logging.info("Generating vocab file: %s", vocab_filepath)
-  vocab = text_encoder.SubwordTextEncoder.build_from_generator(
+  vocab = text_encoder.SubwordTextEncoder.build_from_generator(  # x #
       generator, vocab_size, max_subtoken_length=max_subtoken_length,
       reserved_tokens=reserved_tokens)
 
